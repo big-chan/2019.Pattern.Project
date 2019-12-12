@@ -331,15 +331,15 @@ def spatial_pyramid_matching(image, descriptor, codebook, level):
         code_level_1 = 0.5 * np.asarray(code[1:]).flatten()
         return np.concatenate((code_level_0, code_level_1))
     if level == 2:
-        #pyramid += [descriptor.tolist()]
-        #pyramid +=  build_spatial_pyramid(image, descriptor, level=0)
+        pyramid += [descriptor.tolist()]
+        pyramid +=  build_spatial_pyramid(image, descriptor, level=0)
         pyramid +=build_spatial_pyramid_dc(image, descriptor, level=1)
         code = [input_vector_encoder(crop, codebook) for crop in pyramid]
         #import pdb;pdb.set_trace()
-        #code_level_0 = 0.25 * np.asarray(code[0]).flatten()
-        #code_level_1 = 0.25 * np.asarray(code[1:5]).flatten()
+        code_level_0 = 0.25 * np.asarray(code[0]).flatten()
+        code_level_1 = 0.25 * np.asarray(code[1:5]).flatten()
         code_level_2 =  np.asarray(code[5:]).flatten()
-        return code_level_2#np.concatenate((code_level_0, code_level_1, code_level_2))
+        return np.concatenate((code_level_0, code_level_1, code_level_2))
 def get_label(path='./cifar10/train/labels.txt'):
     """ Get cifar10 class label"""
     with open(path,'r') as f:
@@ -544,7 +544,7 @@ def PCA_(des):
     pca = PCA(n_components=100, svd_solver='randomized',whiten=True)
     des=pca.fit_transform(des)
     return des
-for i in range(0,1):
+for i in range(0,3):
     print("SPM START%d"%i) 
     if not os.path.exists(os.path.join(dataroot,"/SVMlevel%d.pkl"%i)):
         PYRAMID_LEVEL=i
@@ -587,6 +587,7 @@ for i in range(0,1):
         x_test_des=normalize_extension(x_test_des,x_test_kp)
         #x_train_des=[PCA_(i) for i in x_train_des]
         #x_test_des=[PCA_(i) for i in x_test_des]
+        
         if not os.path.exists(os.path.join('spm_lv%d_codebook_200_%d.pkl'%(0,name))):
             codebook = build_codebook(x_train_des, 1024)
             with open(os.path.join('spm_lv%d_codebook_200_%d.pkl'%(0,name)),'wb') as f:
@@ -596,15 +597,15 @@ for i in range(0,1):
                 codebook=pickle.load(f)
             print("Load Codebook")
             
-        x_spm_train=[improvedVLAD(i,codebook)for i in x_train_des]  
-        x_spm_test=[improvedVLAD(i,codebook) for i in x_test_des] 
-        x_spm_train = np.array(x_spm_train)
-        x_spm_test = np.array(x_spm_test)
+        #x_spm_train=[improvedVLAD(i,codebook)for i in x_train_des]  
+        #x_spm_test=[improvedVLAD(i,codebook) for i in x_test_des] 
+        #x_spm_train = np.array(x_spm_train)
+        #x_spm_test = np.array(x_spm_test)
         
         import pdb;pdb.set_trace()
         #x_train_des=[PCA_(i) for i in x_train_des]
         #if not os.path.exists('./SPMfeaturelevel%d_train%d.pkl'%(i,i)):
-        '''
+        
         x_spm_train = [spatial_pyramid_matching(train_data[i],
                                                 x_train_des[i],
                                                 codebook,
@@ -615,23 +616,23 @@ for i in range(0,1):
                                                x_test_des[i],
                                                codebook,
                                                level=PYRAMID_LEVEL) for i in range(len(test_data))]
-        x_spm_test = np.asarray(x_spm_test)'''
+        x_spm_test = np.asarray(x_spm_test)
         print("Load SPM")    
         
         #import pdb;pdb.set_trace()
         #import pdb;pdb.set_trace()
         
-        pca = IncrementalPCA(n_components=1024).fit(x_spm_train)
+        #pca = IncrementalPCA(n_components=1024).fit(x_spm_train)
         
-        x_spm_train=pca.transform(x_spm_train)
-        x_spm_test=pca.transform(x_spm_test)
+        #x_spm_train=pca.transform(x_spm_train)
+        #x_spm_test=pca.transform(x_spm_test)
         print ("Done PCA")
         #SVM_Classify(x_spm_train,train_label,train_label,test_label,i)
         #predict=SVM_Classify(x_spm_train, train_label, x_spm_test, test_label,i)
         #predict =svm_classifier(fv_train, train_label,fv_test )          ############Linear SVM
-        predict =svm_classifier(x_spm_train, train_label,x_spm_test )          ############Linear SVM
+        #predict =svm_classifier(x_spm_train, train_label,x_spm_test )          ############Linear SVM
         
-        #predict=gramSVM(fv_train,fv_test,train_label)                      #########intersection
+        predict=gramSVM(fv_train,fv_test,train_label)                      #########intersection
         
         #predict=gramSVM(x_spm_train,x_spm_test,train_label)                      #########intersection
         
