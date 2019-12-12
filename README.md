@@ -1,10 +1,20 @@
 # 2019.Pattern.Project
 
-- Colab 용 = 패턴인식_프로젝트.ipynb 
-- local 용 - train.py
+- Colab 용 = 패턴인식_프로젝트.ipynb Step_size =8 에 맞춰져있음
+- local 용 - train.py Step_size =4 에 맞춰져있음
 
+## 코드 성능 상황
+### DSIFT step size =4
 
+|codebook| VLAD|VLAD+aug |VLAD+aug+PCA(1024)|
+|:---:| :---:|:---:|
+|1024| ??|73% |70%|
+|200| 63%|68% |??|
 
+|| SPM | SPM+aug|  
+| :---:|:---:|:---:|
+|Level 0|42%|47%|
+|Level 0|60%|58%|
 
 
 
