@@ -5,10 +5,37 @@
 
 train.py 안에도 BoW 와 VLAD 를 다 사용할 수 있도록 주석 처리를 해두었습니다만 일단은 VLAD에 맞춰서 되어있습니다. 
 train_BOW.py 를 실행 시키면 BoW Level 0 부터 Level 2 까지 다 실행 되도록 했습니다. 
+## Back of Word
+
+- 간단 정리 
+```
+[1]    input_image--> Extract local descriptor(DenseSIFT) from input_images --> Kmeans(num_cluster=K,local_descriptor)
+[2] kmeans를 통해 얻은 cluster_centers 와 local_descriptor 를 비교하여 각 descriptor 에 대해 가장 비슷한 center들을 찾아낸다 
+    즉 K=1024 ,local_descriptor.shape = [4096,128] 일때 local_descriptor[0].shape는 [128] 일 것이다. local_descriptor[0] 와 1024개의 
+    cluster_centers 중 가장 거리가 가까운 하나를 찾는다. 그러면 그 센터는 0~1023 중 하나일 것이다. 
+    이 과정을 local_descriptor[n] n=0~4095     
+    까지 진행하면 [4096, ] shape를 가지고 모든 요소는 0~1023 에 값을 가지게 된다. 
+ [3] local_descriptor 와 codebook(cluster_centers) 를 비교 했으면 나오는 값을 histgram을 쌓는다.
+     즉 [4096,] 속에 0~1023 을 sum([1024, ])==4096 이 되도록 histogram 을 쌓는 것이다. 
+     이렇게 쌓은 histogram은 한 이미지의 global descriptor 이 된다. 
+ [4] 모든 이미지의 global descriptor를 추정한 후 SVM을 진행해 classification을 진행 할 수 있도록 한다.
+```
+## VLAD 
+- 간단정리
+```
+BoW 의 [1],[2] 까진 동일하다.
+[3] BoW의 예를 그대로 들자면 codebook.shape=[1024,128], codebook[0].shape =[128] , [2]에서 추출한 predict_center.shape=[4096,] 이다 
+    이때 local_descriptor[predict_center==0] 인 128 차원의 descriptors 를 찾는다. 그리고 그 descriptor 들과 codebook[0] 과의 거리를 잰 후
+    요기서 거리.shape =[128] 을 모두 더하고 이를 0~1023 에 대해 다한다음 그것을 피면 128*1024 에 의 차원을 가지는 global descriptor를 
+    얻느다.
+[4] 는 BoW 와 동일 
+    
+
+```
 
 ### Aug 란 
 
-- 제 코드 내에서 Normalize 와 Geomatric Extension 을 합쳐서 적용하는 것입니다. 이것의 적용을 통해서 배아수BoW 와VLAD 에서 성능향상을 확인했습니다.
+- 제 코드 내에서 Normalize 와 Geomatric Extension 을 합쳐서 적용하는 것입니다. 이것의 적용을 통해서 배이스 BoW 와VLAD 에서 성능향상을 확인했습니다.
 
 ## 코드 성능 상황
 
