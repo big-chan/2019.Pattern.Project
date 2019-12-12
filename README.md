@@ -6,10 +6,11 @@
 ## 코드 성능 상황
 ### DSIFT step size =4
 
-|codebook| VLAD|VLAD+aug |VLAD+aug+PCA(1024)|
+
+|codebook| VLAD+aug |VLAD+aug+PCA(1024)|
 |:---:| :---:|:---:|
-|1024| ??|73% |70%|
-|200| 63%|68% |??|
+|1024| 73% |70%|
+|200| 68% |??|
 
 || SPM | SPM+aug|  
 | :---:|:---:|:---:|
