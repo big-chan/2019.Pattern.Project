@@ -83,6 +83,7 @@ def loadtest(dataroottest):
     #testdata=np.array(testdata)
     return testdata,testlabel
 #import pdb;pdb.set_trace()
+############################################### For Kmeans_GPU
 def random_init(dataset, num_centers):
     num_points = dataset.size(0)
     dimension = dataset.size(1)
@@ -164,7 +165,7 @@ def KMeans_GPU(dataset, num_centers):
         codes = new_codes
     return centers, codes
 #########################################################################################################
-def extract_sift_descriptors(img):
+def extract_sift_descriptors(img):############ For SIFT
     """
     Input BGR numpy array
     Return SIFT descriptors for an image
@@ -177,7 +178,7 @@ def extract_sift_descriptors(img):
     return descriptors
 
 
-def extract_DenseSift_descriptors(img):
+def extract_DenseSift_descriptors(img):###########For DenseSIFT
     """
     Input BGR numpy array
     Return Dense SIFT descriptors for an image
@@ -225,7 +226,7 @@ def build_codebook(X, voc_size):
     return codebook
 
 from sklearn.decomposition import SparseCoder
-def input_vector_encoder(feature, codebook):
+def input_vector_encoder(feature, codebook):###########For matching codebook and descriptor
     """
     Input all the local feature of the image
     Pooling (encoding) by codebook and return
@@ -240,7 +241,7 @@ def input_vector_encoder(feature, codebook):
     word_hist, bin_edges = np.histogram(code, bins=range(codebook.shape[0] + 1), normed=True)
     return word_hist
 
-def build_spatial_pyramid_dc(image, descriptor, level):
+def build_spatial_pyramid_dc(image, descriptor, level):###########for build historgram step 4 level 1
     """
     Rebuild the descriptors according to the level of pyramid
     """
@@ -278,7 +279,7 @@ def build_spatial_pyramid_dc(image, descriptor, level):
         pyramid.append([descriptor[idx] for idx in idxs])
     #import pdb;pdb.set_trace()
     return pyramid
-def build_spatial_pyramid(image, descriptor, level):
+def build_spatial_pyramid(image, descriptor, level):###########for build historgram step 4 level 2
     """
     Rebuild the descriptors according to the level of pyramid
     """
@@ -331,8 +332,8 @@ def spatial_pyramid_matching(image, descriptor, codebook, level):
         code_level_1 = 0.5 * np.asarray(code[1:]).flatten()
         return np.concatenate((code_level_0, code_level_1))
     if level == 2:
-        #pyramid += [descriptor.tolist()]
-        #pyramid +=  build_spatial_pyramid(image, descriptor, level=0)
+        pyramid += [descriptor.tolist()]
+        pyramid +=  build_spatial_pyramid(image, descriptor, level=0)
         pyramid +=build_spatial_pyramid_dc(image, descriptor, level=1)
         code = [input_vector_encoder(crop, codebook) for crop in pyramid]
         #import pdb;pdb.set_trace()
@@ -340,14 +341,8 @@ def spatial_pyramid_matching(image, descriptor, codebook, level):
         #code_level_1 = 0.25 * np.asarray(code[1:5]).flatten()
         code_level_2 =  np.asarray(code[5:]).flatten()
         return code_level_2#np.concatenate((code_level_0, code_level_1, code_level_2))
-def get_label(path='./cifar10/train/labels.txt'):
-    """ Get cifar10 class label"""
-    with open(path,'r') as f:
-        names = f.readlines()
-    names = [n.strip() for n in names]
-    return names
 
-def svm_classifier(x_train, y_train, x_test=None, y_test=None,level=1):
+def svm_classifier(x_train, y_train, x_test=None, y_test=None,level=1):######## LinearSVM
     best=0
     ##############################################
     '''
@@ -374,7 +369,7 @@ def svm_classifier(x_train, y_train, x_test=None, y_test=None,level=1):
     return predict
     
 # form histogram with Spatial Pyramid Matching upto level L with codebook kmeans and k codewords
-
+#############################histogram intersection SVM
 def histogramIntersection(M, N):
     m = M.shape[0]
     n = N.shape[0]
@@ -399,6 +394,8 @@ def gramSVM(total_train_feature,total_test_feature,train_labels):
     print(clf.best_params_)
     SVMResults = clf.predict(predictMatrix)
     return SVMResults
+#################################################################
+#########################################extract VLAD descriptor
 def improvedVLAD(X,visualDictionary):
 
     predictedLabels,_ = vq.vq(X,visualDictionary)
@@ -425,6 +422,7 @@ def improvedVLAD(X,visualDictionary):
 
     V = V/np.sqrt(np.dot(V,V))
     return V
+###################Kepoint to array
 def make_kp_arr(x_kp):
   x_arr=[]
   for keypoints in x_kp:
@@ -436,6 +434,7 @@ def make_kp_arr(x_kp):
       x_arr.append(xy)  
   x_arr=np.array(x_arr).astype("float32")
   return  x_arr
+####################SIFT descriptor normalize and geometric extension 
 def normalize_extension(x_train_des,x_train_kp):
   img_num=np.array(x_train_des).shape[0]
   des_num=np.array(x_train_des).shape[1]
@@ -451,6 +450,7 @@ def normalize_extension(x_train_des,x_train_kp):
   ############
   ###########PCA
   # encoder.projection = diag(1./sqrt(d(1:m))) * V(:,1:m)' ;
+  '''
   mean=x_train_des.mean(1).reshape(-1,1)
   new_matrix=x_train_des-mean
   covariance_matrix = np.cov(np.transpose(new_matrix))
@@ -461,7 +461,7 @@ def normalize_extension(x_train_des,x_train_kp):
   newData = np.transpose(new_dimension_matrix)
   val=(-w).argsort()[:2]
   result=v[...,val]
-  import pdb;pdb.set_trace();
+  import pdb;pdb.set_trace();'''
   '''
   
   X = np.dot(x,np.trannspose(x))/ x.shape[1]
@@ -534,19 +534,21 @@ else:
 
 train_data=np.array(train_data)
 train_label=np.array(train_label)
-train_data=train_data[train_label!=102]
+train_data=train_data[train_label!=102]#################102 Background 제거
 train_label=train_label[train_label!=102]
 
 DSIFT_STEP_SIZE = 4
+
 def PCA_(des):
     pca = PCA(n_components=100, svd_solver='randomized',whiten=True)
     des=pca.fit_transform(des)
     return des
+
 for i in range(0,1):
     print("SPM START%d"%i) 
     if not os.path.exists(os.path.join(dataroot,"/SVMlevel%d.pkl"%i)):
         PYRAMID_LEVEL=i
-        name=11
+        name=11## 파일명 변경
         #import pdb;pdb.set_trace()
         if not os.path.exists(os.path.join('spm_lv%d_trainfeature_%d.pkl'%(0,name))):
             
@@ -618,11 +620,11 @@ for i in range(0,1):
         
         #import pdb;pdb.set_trace()
         #import pdb;pdb.set_trace()
-        
+        '''
         pca = IncrementalPCA(n_components=1024).fit(x_spm_train)
         
         x_spm_train=pca.transform(x_spm_train)
-        x_spm_test=pca.transform(x_spm_test)
+        x_spm_test=pca.transform(x_spm_test)'''
         print ("Done PCA")
         #SVM_Classify(x_spm_train,train_label,train_label,test_label,i)
         #predict=SVM_Classify(x_spm_train, train_label, x_spm_test, test_label,i)
