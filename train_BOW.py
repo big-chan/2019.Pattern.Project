@@ -583,8 +583,8 @@ for i in range(0,3):
             with open(os.path.join('spm_lv%d_testfeature_kp_%d.pkl'%(0,name)),'rb') as f:
                 x_test_kp=pickle.load(f)
                 
-        x_train_des=normalize_extension(x_train_des,x_train_kp)
-        x_test_des=normalize_extension(x_test_des,x_test_kp)
+        #x_train_des=normalize_extension(x_train_des,x_train_kp)
+        #x_test_des=normalize_extension(x_test_des,x_test_kp)
         #x_train_des=[PCA_(i) for i in x_train_des]
         #x_test_des=[PCA_(i) for i in x_test_des]
         
@@ -602,7 +602,7 @@ for i in range(0,3):
         #x_spm_train = np.array(x_spm_train)
         #x_spm_test = np.array(x_spm_test)
         
-        import pdb;pdb.set_trace()
+        #import pdb;pdb.set_trace()
         #x_train_des=[PCA_(i) for i in x_train_des]
         #if not os.path.exists('./SPMfeaturelevel%d_train%d.pkl'%(i,i)):
         
