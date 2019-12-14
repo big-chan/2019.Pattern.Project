@@ -583,8 +583,8 @@ for i in range(0,3):
             with open(os.path.join('spm_lv%d_testfeature_kp_%d.pkl'%(0,name)),'rb') as f:
                 x_test_kp=pickle.load(f)
                 
-        #x_train_des=normalize_extension(x_train_des,x_train_kp)
-        #x_test_des=normalize_extension(x_test_des,x_test_kp)
+        x_train_des=normalize_extension(x_train_des,x_train_kp)
+        x_test_des=normalize_extension(x_test_des,x_test_kp)
         #x_train_des=[PCA_(i) for i in x_train_des]
         #x_test_des=[PCA_(i) for i in x_test_des]
         
@@ -597,26 +597,26 @@ for i in range(0,3):
                 codebook=pickle.load(f)
             print("Load Codebook")
             
-        #x_spm_train=[improvedVLAD(i,codebook)for i in x_train_des]  
-        #x_spm_test=[improvedVLAD(i,codebook) for i in x_test_des] 
-        #x_spm_train = np.array(x_spm_train)
-        #x_spm_test = np.array(x_spm_test)
+        x_spm_train=[improvedVLAD(i,codebook)for i in x_train_des]  
+        x_spm_test=[improvedVLAD(i,codebook) for i in x_test_des] 
+        x_spm_train = np.array(x_spm_train)
+        x_spm_test = np.array(x_spm_test)
         
         #import pdb;pdb.set_trace()
         #x_train_des=[PCA_(i) for i in x_train_des]
         #if not os.path.exists('./SPMfeaturelevel%d_train%d.pkl'%(i,i)):
         
-        x_spm_train = [spatial_pyramid_matching(train_data[i],
-                                                x_train_des[i],
-                                                codebook,
-                                                level=PYRAMID_LEVEL)
-                                                for i in range(len(train_data))]
-        x_spm_train = np.asarray(x_spm_train)
-        x_spm_test = [spatial_pyramid_matching(test_data[i],
-                                               x_test_des[i],
-                                               codebook,
-                                               level=PYRAMID_LEVEL) for i in range(len(test_data))]
-        x_spm_test = np.asarray(x_spm_test)
+        #x_spm_train = [spatial_pyramid_matching(train_data[i],
+        #                                        x_train_des[i],
+        #                                        codebook,
+        #                                        level=PYRAMID_LEVEL)
+        #                                        for i in range(len(train_data))]
+        #x_spm_train = np.asarray(x_spm_train)
+        #x_spm_test = [spatial_pyramid_matching(test_data[i],
+        #                                       x_test_des[i],
+        #                                       codebook,
+        #                                       level=PYRAMID_LEVEL) for i in range(len(test_data))]
+        #x_spm_test = np.asarray(x_spm_test)
         print("Load SPM")    
         
         #import pdb;pdb.set_trace()
